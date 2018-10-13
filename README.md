@@ -1,8 +1,24 @@
 # RequestTagger
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/request_tagger`. To experiment with that code, run `bin/console` for an interactive prompt.
+Inject a request ID tag into all _ActiveRecord_ queries and HTTP requests made within your [*Rails*] application.
 
-TODO: Delete this and the text above, and describe your gem
+Any web service requests or database queries your application makes in a given request can be tied together by coalescing your log files in your favourite log aggregator, giving a full picture of every request on your system.
+
+An incoming HTTP header is used as the ID for all subsequent requests.
+
+SQL queries are prepended with a comment that will look something like this:
+
+```sql
+/* request-id: abc123 */ SELECT * FROM ...
+```
+
+HTTP requests will include an extra header:
+
+```
+X-Request-Id: abc123
+```
+
+The implementation has borrowed ideas from _RSpec's_ `allow_any_instance_of` and _webmock's_ `stub_request`. Their source code was used as an invaluable reference during development. Thanks to the developers of both libraries for their hard work.
 
 ## Installation
 
@@ -12,24 +28,64 @@ Add this line to your application's Gemfile:
 gem 'request_tagger'
 ```
 
-And then execute:
+And then rebuild your bundle:
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install request_tagger
+```bash
+$ bundle install
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+The only thing you need to do is create an initializer:
+
+```ruby
+# config/initializers/request_tagger.rb
+RequestTagger.start
+```
+
+You can pass the following options (values shown are the defaults):
+
+```ruby
+RequestTagger.start(
+  tag_sql: true, # Tag all ActiveRecord SQL queries
+  tag_http: true, # Tag all HTTP requests
+  http_tag_name: 'X-Request-Id', # Header to use for outbound requests
+  sql_tag_name: 'request-id', # Identifier to use in SQL tags
+  header: 'HTTP_X_REQUEST_ID' # Header to watch for inbound requests*
+)
+```
+
+\* Note that an inbound HTTP header e.g. `X-Request-Id` will be transformed by Rack to `HTTP_X_REQUEST_ID` so take this into account when setting the `header` option.
+
+An inbound header is required and an ID will not be generated for you. An example usage would be the `$request_id` variable provided by _nginx_:
+
+```
+location / {
+    proxy_set_header X-Request-Id $request_id;
+}
+```
+
+### Caveats
+
+- Only web requests made by _Net::HTTP_ are intercepted. Most popular HTTP libraries use this at their core, including _Faraday_ and _HTTParty_ so this should cover the vast majority of cases but feel free to submit a pull request to add more drivers.
+- Since _Net::HTTP_ and _ActiveRecord_ are monkeypatched in similar ways to how _RSpec_ and _webmock_ operate, you probably do not want to enable _RequestTagger_ in your test environment. Use `unless Rails.env.test?` in your initializer.
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+Clone the repository and submit a pull requests to fix any bugs or add any new features.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Write tests for any new code you write and ensure all tests pass before submitting:
 
-## Contributing
+```bash
+$ bin/rspec
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/request_tagger. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Please also run _Rubocop_ and fix any issues before making a pull request:
+
+```bash
+$ bin/rubocop
+```
+
+## License
+
+_RequestTagger_ is licensed under the MIT license. Do whatever you like with the code, just give credit where it's due.
