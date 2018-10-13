@@ -25,6 +25,10 @@ module RequestTagger
       @initialized = false
     end
 
+    def self.inbound_header
+      @options[:header] || 'HTTP_X_REQUEST_ID'
+    end
+
     def self.sql_tag
       "/* #{sql_tag_identifier}: #{sql_sanitize(request_id)} */"
     end
@@ -46,7 +50,6 @@ module RequestTagger
 
     class << self
       private
-
 
       def wrap_active_record
         return unless @options.fetch(:tag_sql, true)

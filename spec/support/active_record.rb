@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_record'
 
 class TestModel < ActiveRecord::Base; end

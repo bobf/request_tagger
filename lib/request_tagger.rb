@@ -27,3 +27,5 @@ unless Gem.loaded_specs.key?('rails')
   I18n.backend.load_translations
   I18n.config.available_locales = :en
 end
+
+require 'request_tagger/rails' if Gem.loaded_specs.key?('rails')

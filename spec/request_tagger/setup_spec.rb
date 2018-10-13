@@ -10,10 +10,26 @@ RSpec.describe RequestTagger::Setup do
   it { is_expected.to be_a described_class }
 
   describe '.start' do
-    subject { described_class.start(start_params) }
+    subject { proc { described_class.start(start_params) } }
     after { described_class.stop }
 
-    it { is_expected.to be true }
+    it { is_expected.to_not raise_error }
+  end
+
+  describe 'inbound header setting' do
+    subject { described_class.inbound_header }
+    before { described_class.start(header_params) }
+    after { described_class.stop }
+
+    context 'default' do
+      let(:header_params) { start_params }
+      it { is_expected.to eql 'HTTP_X_REQUEST_ID' }
+    end
+
+    context 'custom' do
+      let(:header_params) { start_params.merge(header: 'HTTP_X_TOTO') }
+      it { is_expected.to eql 'HTTP_X_TOTO' }
+    end
   end
 
   describe 'sql tag name setting' do
