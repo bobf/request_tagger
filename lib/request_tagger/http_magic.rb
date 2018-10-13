@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'net/http'
+
 # This code is heavily inspired by webmock's NetHttpAdapter
 # webmock source code was used as reference material during development.
 # https://github.com/bblimke/webmock/blob/master/lib/webmock/http_lib_adapters/net_http.rb

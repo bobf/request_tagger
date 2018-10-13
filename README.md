@@ -1,6 +1,6 @@
 # RequestTagger
 
-Inject a request ID tag into all _ActiveRecord_ queries and HTTP requests made within your [*Rails*] application.
+Inject a request ID tag into all _ActiveRecord_ queries and HTTP requests made within your [_Rails_] application.
 
 Any web service requests or database queries your application makes in a given request can be tied together by coalescing your log files in your favourite log aggregator, giving a full picture of every request on your system.
 
@@ -36,14 +36,22 @@ $ bundle install
 
 ## Usage
 
-The only thing you need to do is create an initializer:
+The only things you need to do are create an initializer:
 
 ```ruby
 # config/initializers/request_tagger.rb
 RequestTagger.start
 ```
 
-You can pass the following options (values shown are the defaults):
+and include the `RequestTagger::TagRequests` module in your base controller:
+
+```ruby
+class ApplicationController < ActionController::Base
+  include RequestTagger::TagRequests
+end
+```
+
+You can pass the following options to `RequestTagger.start` (values shown are the defaults):
 
 ```ruby
 RequestTagger.start(
@@ -57,12 +65,24 @@ RequestTagger.start(
 
 \* Note that an inbound HTTP header e.g. `X-Request-Id` will be transformed by Rack to `HTTP_X_REQUEST_ID` so take this into account when setting the `header` option.
 
-An inbound header is required and an ID will not be generated for you. An example usage would be the `$request_id` variable provided by _nginx_:
+An example usage would be the `$request_id` variable provided by _nginx_:
 
 ```
 location / {
     proxy_set_header X-Request-Id $request_id;
 }
+```
+
+### Setting a request ID manually
+
+If you want to manually assign the request ID to be used in tags, just add overwrite the following method in your base controller:
+
+```ruby
+  private
+
+  def __request_tagger__set_request_id__
+    RequestTagger.request_id = 'my-custom-request-id'
+  end
 ```
 
 ### Caveats

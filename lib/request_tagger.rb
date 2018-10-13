@@ -28,4 +28,4 @@ unless Gem.loaded_specs.key?('rails')
   I18n.config.available_locales = :en
 end
 
-require 'request_tagger/rails' if Gem.loaded_specs.key?('rails')
+require 'request_tagger/tag_requests' if Gem.loaded_specs.key?('rails')
