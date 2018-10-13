@@ -8,6 +8,7 @@ module RequestTagger
       raise AlreadyStartedError, I18n.t('errors.start_once') if @initialized
 
       @ar_magic = ActiveRecordMagic.new(active_record_connection(options))
+      @http_magic = HttpMagic.new
 
       @initialized = true
     end
@@ -22,6 +23,10 @@ module RequestTagger
 
     def self.sql_tag
       "/* #{tag_identifier}: #{sql_sanitize(request_id)} */"
+    end
+
+    def self.http_tag
+      { field: 'X-Request-Id', value: request_id }
     end
 
     def self.request_id=(val)

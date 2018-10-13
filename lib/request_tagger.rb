@@ -6,6 +6,7 @@ require 'request_tagger/version'
 require 'request_tagger/errors'
 require 'request_tagger/setup'
 require 'request_tagger/active_record_magic'
+require 'request_tagger/http_magic'
 
 module RequestTagger
   def self.start(options = {})

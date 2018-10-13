@@ -2,6 +2,7 @@
 
 RSpec.describe RequestTagger::Setup do
   let(:setup) { described_class.new }
+  let(:not_initialized) { '[not initialized]' }
 
   subject { setup }
 
@@ -19,10 +20,12 @@ RSpec.describe RequestTagger::Setup do
   end
 
   describe '.sql_tag' do
+    after { described_class.request_id = nil }
+
     subject { described_class.sql_tag }
 
     context 'no request ID assigned' do
-      it { is_expected.to eql '/* request-id: [not initialized] */' }
+      it { is_expected.to eql "/* request-id: #{not_initialized} */" }
     end
 
     context 'request ID assigned' do
@@ -33,6 +36,21 @@ RSpec.describe RequestTagger::Setup do
     context 'filtering insecure values' do
       before { described_class.request_id = '*/ delete from bobby_tables' }
       it { is_expected.to eql '/* request-id:  delete from bobby_tables */' }
+    end
+  end
+
+  describe '.http_tag' do
+    after { described_class.request_id = nil }
+
+    subject { described_class.http_tag }
+
+    context 'no request ID assigned' do
+      it { is_expected.to eql(field: 'X-Request-Id', value: not_initialized) }
+    end
+
+    context 'request ID assigned' do
+      before { described_class.request_id = 'toto' }
+      it { is_expected.to eql(field: 'X-Request-Id', value: 'toto') }
     end
   end
 
