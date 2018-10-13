@@ -44,8 +44,7 @@ module RequestTagger
       alias_name = alias_for(method_name)
 
       @target_class.__send__(:define_method, method_name) do |sql, *args|
-        tag = RequestTagger::Setup.sql_tag
-        tagged_sql = "/* #{tag} */ #{sql}"
+        tagged_sql = "#{RequestTagger::Setup.sql_tag} #{sql}"
         __send__(alias_name, tagged_sql, *args)
       end
     end

@@ -10,9 +10,7 @@ require 'request_tagger/http_magic'
 
 module RequestTagger
   def self.start(options = {})
-    active_record_connection = options[:active_record_connection]
-
-    Setup.start(active_record_connection: active_record_connection)
+    Setup.start(options)
   end
 
   def self.stop

@@ -28,7 +28,9 @@ module RequestTagger
       Class.new(Net::HTTP) do
         def request(request, body = nil, &block)
           http_tag = RequestTagger::Setup.http_tag
-          request.add_field(http_tag[:field], http_tag[:value])
+          if request.get_fields(http_tag[:field]).nil?
+            request.add_field(http_tag[:field], http_tag[:value])
+          end
           super
         end
       end

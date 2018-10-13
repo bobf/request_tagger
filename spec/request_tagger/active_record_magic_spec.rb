@@ -22,10 +22,10 @@ RSpec.describe RequestTagger::ActiveRecordMagic do
   let(:ar_adapter) { DummyAdapter }
   let(:ar_connection) { ar_adapter.new }
   let(:active_record_magic) { described_class.new(ar_connection) }
-  let(:tag) { 'test-tag' }
+  let(:tag) { '/* test-tag */' }
   let(:copied_method_name) { :"__request_tagger_original__#{method_name}__" }
   let(:sql) { 'select * from table' }
-  let(:tagged_sql) { "/* #{tag} */ #{sql}" }
+  let(:tagged_sql) { "#{tag} #{sql}" }
 
   subject { active_record_magic }
 

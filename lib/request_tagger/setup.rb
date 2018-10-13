@@ -7,8 +7,10 @@ module RequestTagger
     def self.start(options = {})
       raise AlreadyStartedError, I18n.t('errors.start_once') if @initialized
 
-      @ar_magic = ActiveRecordMagic.new(active_record_connection(options))
-      @http_magic = HttpMagic.new
+      @options = options
+
+      wrap_active_record
+      wrap_http
 
       @initialized = true
     end
@@ -16,17 +18,19 @@ module RequestTagger
     def self.stop
       return unless @initialized
 
-      @ar_magic.restore
+      restore_active_record
+      restore_http
 
+      @options = {}
       @initialized = false
     end
 
     def self.sql_tag
-      "/* #{tag_identifier}: #{sql_sanitize(request_id)} */"
+      "/* #{sql_tag_identifier}: #{sql_sanitize(request_id)} */"
     end
 
     def self.http_tag
-      { field: 'X-Request-Id', value: request_id }
+      { field: http_tag_identifier, value: request_id }
     end
 
     def self.request_id=(val)
@@ -43,16 +47,47 @@ module RequestTagger
     class << self
       private
 
-      def tag_identifier
-        'request-id'
+
+      def wrap_active_record
+        return unless @options.fetch(:tag_sql, true)
+
+        @ar_magic = ActiveRecordMagic.new(active_record_connection)
+        @ar_magic.wrap
+      end
+
+      def wrap_http
+        return unless @options.fetch(:tag_http, true)
+
+        @http_magic = HttpMagic.new
+        @http_magic.wrap
+      end
+
+      def restore_active_record
+        return unless @options.fetch(:tag_sql, true)
+
+        @ar_magic.restore
+      end
+
+      def restore_http
+        return unless @options.fetch(:tag_http, true)
+
+        @http_magic.wrap
+      end
+
+      def sql_tag_identifier
+        @options[:sql_tag_name] || 'request-id'
+      end
+
+      def http_tag_identifier
+        @options[:http_tag_name] || 'X-Request-Id'
       end
 
       def uninitialized
         '[not initialized]'
       end
 
-      def active_record_connection(options)
-        options[:active_record_connection] || ActiveRecord::Base.connection
+      def active_record_connection
+        @options[:active_record_connection] || ActiveRecord::Base.connection
       end
 
       def sql_sanitize(val)
