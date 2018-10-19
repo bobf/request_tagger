@@ -1,5 +1,12 @@
 # RequestTagger
 
+> I did what I did
+>
+> Can't say "hey man, I'm just a kid."
+>
+> --Nickelback
+
+
 Inject a request ID tag into all _ActiveRecord_ queries and HTTP requests made within your [_Rails_] application.
 
 Any web service requests or database queries your application makes in a given request can be tied together by coalescing your log files in your favourite log aggregator, giving a full picture of every request on your system.
