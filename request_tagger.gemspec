@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Tag all ActiveRecord and HTTP traffic with a request ID'
   spec.description   = 'Inject a tracking tag into all SQL and HTTP requests'
   spec.homepage      = 'https://github.com/bobf/request_tagger'
+  spec.licenses      = ['MIT']
 
   spec.files         = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject do |f|
