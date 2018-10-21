@@ -1,11 +1,11 @@
 # RequestTagger
 
-> I did what I did
->
-> Can't say "hey man, I'm just a kid."
->
-> --Nickelback
+```
+I did what I did
+Can't say "hey man, I'm just a kid."
 
+                        --Nickelback
+```
 
 Inject a request ID tag into all _ActiveRecord_ queries and HTTP requests made within your [_Rails_] application.
 
