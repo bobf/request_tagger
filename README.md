@@ -82,7 +82,7 @@ location / {
 
 ### Setting a request ID manually
 
-If you want to manually assign the request ID to be used in tags, just add overwrite the following method in your base controller:
+If you want to manually assign the request ID to be used in tags, just overwrite the following method in your base controller:
 
 ```ruby
   private
